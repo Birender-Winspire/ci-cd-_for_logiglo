@@ -13,6 +13,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
+        with:
+          version: 'latest'
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -24,10 +29,6 @@ jobs:
       - name: Generate Prisma Client
         run: npx prisma generate
 
-      # Optional: Run tests
-      # - name: Run tests
-      #   run: npm test
-
       - name: Deploy to MilesWeb server via SSH
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -35,10 +36,19 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            export DATABASE_URL="postgresql://logiglo:root123@localhost:5432/logiglo_db"
+            export DATABASE_URL="postgresql://logiglo:root123@postgres:5432/logiglo_db?schema=public"
             cd /root/logiglo_99/ci-cd-_for_logiglo
+
+            # Pull the latest changes from Git
             git pull origin main
-            npm install
-            npx prisma migrate deploy
-            npx prisma generate
-            pm2 restart app || pm2 start server.js --name app
+
+            # Rebuild the containers with the updated code
+            docker-compose down
+            docker-compose up -d
+
+            # Ensure Prisma migration is applied
+            docker-compose exec backend npx prisma migrate deploy
+            docker-compose exec backend npx prisma generate
+
+            # Restart the backend application if needed
+            docker-compose exec backend pm2 restart app || docker-compose exec backend pm2 start server.js --name app
