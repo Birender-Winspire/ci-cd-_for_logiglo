@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            export DATABASE_URL="postgresql://logiglo:root123@postgres:5432/logiglo_db?schema=public"
+            export DATABASE_URL="postgresql://myuser:mypassword@postgres:5432/mydb?schema=public"
             cd /root/logiglo_99/ci-cd-_for_logiglo
 
             # Pull the latest changes from Git
