@@ -3,41 +3,41 @@ name: Deploy Node Express App with Prisma
 on:
   push:
     branches:
-      - main  # or test/dev/production based on your flow
+      - main # or test/dev/production based on your flow
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
 
-    - name: Install dependencies
-      run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-    - name: Generate Prisma Client
-      run: npx prisma generate
+      - name: Generate Prisma Client
+        run: npx prisma generate
 
-    # Optional: Run tests
-    # - name: Run tests
-    #   run: npm test
+      # Optional: Run tests
+      # - name: Run tests
+      #   run: npm test
 
-    - name: Deploy to MilesWeb server via SSH
-      uses: appleboy/ssh-action@v0.1.6
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        script: |
-          cd /home/your-user/your-project-folder
-          git pull origin main
-          npm install
-          npx prisma migrate deploy
-          npx prisma generate
-          pm2 restart app || pm2 start server.js --name app
+      - name: Deploy to MilesWeb server via SSH
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/logiglo_99/ci-cd-_for_logiglo
+            git pull origin main
+            npm install
+            npx prisma migrate deploy
+            npx prisma generate
+            pm2 restart app || pm2 start server.js --name app
