@@ -35,6 +35,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            export DATABASE_URL="postgresql://logiglo:root123@localhost:5432/logiglo_db"
             cd /root/logiglo_99/ci-cd-_for_logiglo
             git pull origin main
             npm install
